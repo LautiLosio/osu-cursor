@@ -1,0 +1,1 @@
+osu inspired cursor animations
