@@ -105,13 +105,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleInteractionMove(e) {
+    if (e.type === 'touchmove') {
+      e.preventDefault();
+    }
+    const coords = e.touches ? e.touches[0] : e;
     // Always update the cursor's position
-    cursorSvg.style.left = `${e.clientX}px`;
-    cursorSvg.style.top = `${e.clientY}px`;
+    cursorSvg.style.left = `${coords.clientX}px`;
+    cursorSvg.style.top = `${coords.clientY}px`;
 
     if (isMouseDown) {
-      const deltaX = e.clientX - mouseDownX;
-      const deltaY = e.clientY - mouseDownY;
+      const deltaX = coords.clientX - mouseDownX;
+      const deltaY = coords.clientY - mouseDownY;
       distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
       crossedThreshold = distance > DRAG_START_THRESHOLD;
 
@@ -119,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!isDragging && distance > DRAG_START_THRESHOLD) {
         isDragging = true;
         const initialAngle =
-          Math.atan2(mouseDownY - e.clientY, mouseDownX - e.clientX) * (180 / Math.PI) + 135;
+          Math.atan2(mouseDownY - coords.clientY, mouseDownX - coords.clientX) * (180 / Math.PI) + 135;
         lastAngle = initialAngle;
         if (initialAngle > 180) {
           totalRotation = initialAngle - 360;
@@ -133,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Calculate the rotation angle to "point" the cursor
         const angle =
-          Math.atan2(mouseDownY - e.clientY, mouseDownX - e.clientX) * (180 / Math.PI) + 135;
+          Math.atan2(mouseDownY - coords.clientY, mouseDownX - coords.clientX) * (180 / Math.PI) + 135;
 
         let deltaAngle = angle - lastAngle;
         if (deltaAngle > 180) {
@@ -155,16 +159,20 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleInteractionStart(e) {
+    if (e.type === 'touchstart') {
+      e.preventDefault();
+    }
     isMouseDown = true;
-    mouseDownX = e.clientX;
-    mouseDownY = e.clientY;
+    const coords = e.touches ? e.touches[0] : e;
+    mouseDownX = coords.clientX;
+    mouseDownY = coords.clientY;
 
     unwindSpeed = 0;
     crossedThreshold = false;
 
     // drag threshold marker is radius of the circle
-    clickMarker.style.left = `${e.clientX - DRAG_START_THRESHOLD}px`;
-    clickMarker.style.top = `${e.clientY - DRAG_START_THRESHOLD}px`;
+    clickMarker.style.left = `${coords.clientX - DRAG_START_THRESHOLD}px`;
+    clickMarker.style.top = `${coords.clientY - DRAG_START_THRESHOLD}px`;
     clickMarker.style.width = `${DRAG_START_THRESHOLD * 2}px`;
     clickMarker.style.height = `${DRAG_START_THRESHOLD * 2}px`;
     clickMarker.style.display = 'block';
@@ -207,6 +215,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('mousemove', handleInteractionMove);
   document.addEventListener('mousedown', handleInteractionStart);
   document.addEventListener('mouseup', handleInteractionEnd);
+
+  // Touch events
+  document.addEventListener('touchmove', handleInteractionMove, { passive: false });
+  document.addEventListener('touchstart', handleInteractionStart, { passive: false });
+  document.addEventListener('touchend', handleInteractionEnd);
+  document.addEventListener('touchcancel', handleInteractionEnd);
 
   loadSettings();
   updateDebugInfo();
