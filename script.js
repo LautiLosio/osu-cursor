@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   }
 
-  document.addEventListener('mousemove', e => {
+  function handleInteractionMove(e) {
     // Always update the cursor's position
     cursorSvg.style.left = `${e.clientX}px`;
     cursorSvg.style.top = `${e.clientY}px`;
@@ -152,9 +152,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     updateDebugInfo();
-  });
+  }
 
-  document.addEventListener('mousedown', e => {
+  function handleInteractionStart(e) {
     isMouseDown = true;
     mouseDownX = e.clientX;
     mouseDownY = e.clientY;
@@ -176,9 +176,9 @@ document.addEventListener('DOMContentLoaded', () => {
     cursorSvg.querySelector('circle').style.fill = '#ff69b4';
 
     updateDebugInfo();
-  });
+  }
 
-  document.addEventListener('mouseup', () => {
+  function handleInteractionEnd() {
     requestAnimationFrame(() => {
       clickMarker.style.display = 'none';
 
@@ -202,7 +202,11 @@ document.addEventListener('DOMContentLoaded', () => {
       crossedThreshold = false;
       updateDebugInfo();
     });
-  });
+  }
+
+  document.addEventListener('mousemove', handleInteractionMove);
+  document.addEventListener('mousedown', handleInteractionStart);
+  document.addEventListener('mouseup', handleInteractionEnd);
 
   loadSettings();
   updateDebugInfo();
